@@ -1,0 +1,76 @@
+﻿@model Ladin.ea.Models.ImportViewModel
+@{
+    ViewData["Title"] = "Импорт товаров";
+}
+
+<div class="container mt-4">
+    <h1>Импорт товаров</h1>
+
+    <div class="card mb-4 shadow-sm">
+        <div class="card-body">
+            <form method="post" asp-controller="Products" asp-action="Import">
+                @Html.AntiForgeryToken()
+                <div class="mb-3">
+                    <label for="filePath" class="form-label">Путь к CSV-файлу</label>
+                    <input type="text" class="form-control" id="filePath" name="filePath" value="@Model.FilePath" />
+                    <div class="form-text">Введите путь от корня сайта /csv/sample_products.txt </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Импортировать товары</button>
+                <a asp-action="Index" class="btn btn-secondary">Назад к списку</a>
+            </form>
+        </div>
+    </div>
+
+    @if (Model.Result != null)
+    {
+        <h2>Результат импорта</h2>
+        <table class="table table-bordered w-50">
+            <thead class="table-secondary">
+                <tr>
+                    <th>Показатель</th>
+                    <th>Значение</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Всего строк</td>
+                    <td>@Model.Result.TotalRows</td>
+                </tr>
+                <tr>
+                    <td>Успешно импортировано</td>
+                    <td class="text-success fw-bold">@Model.Result.ImportedCount</td>
+                </tr>
+                <tr>
+                    <td>Ошибки</td>
+                    <td class="text-danger fw-bold">@Model.Result.ErrorCount</td>
+                </tr>
+            </tbody>
+        </table>
+
+        @if (Model.Result.Errors.Count > 0)
+        {
+            <h3 class="text-danger mt-4">Список ошибок</h3>
+            <table class="table table-bordered">
+                <thead class="table-danger">
+                    <tr>
+                        <th>Строка</th>
+                        <th>Описание ошибки</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var error in Model.Result.Errors)
+                    {
+                        <tr>
+                            <td>@error.RowNumber</td>
+                            <td>@error.Message</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else if (Model.Result.ImportedCount > 0)
+        {
+            <div class="alert alert-success mt-3">Импорт прошел успешно!</div>
+        }
+    }
+</div>
